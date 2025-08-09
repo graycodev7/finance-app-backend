@@ -16,8 +16,12 @@ build/
 .env.production.local
 
 # Logs
-logs
+logs/
 *.log
+
+# Production files
+.env.production
+ecosystem.config.js
 
 # Runtime data
 pids

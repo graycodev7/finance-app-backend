@@ -1,10 +1,10 @@
 import rateLimit from 'express-rate-limit';
 import { Request, Response, NextFunction } from 'express';
 
-// Rate limiting para prevenir ataques de fuerza bruta
+// Rate limiting para prevenir ataques de fuerza bruta (configuración para desarrollo)
 export const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // máximo 5 intentos por IP
+  windowMs: 2 * 60 * 1000, // 2 minutos (reducido para desarrollo)
+  max: 20, // máximo 20 intentos por IP (aumentado para desarrollo)
   message: {
     success: false,
     message: 'Too many authentication attempts, please try again later'

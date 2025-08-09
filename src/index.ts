@@ -7,12 +7,17 @@ import dotenv from 'dotenv';
 // Import routes
 import authRoutes from './routes/auth';
 import transactionRoutes from './routes/transactions';
+import categoryRoutes from './routes/categories';
 
 // Import database connection
 import pool from './config/database';
 
 // Import security middleware
 import { apiLimiter, authLimiter, sanitizeInput } from './middleware/security';
+
+// Import token cleanup service
+import { TokenCleanupService } from './services/tokenCleanup';
+import { logger } from './utils/logger';
 
 // Load environment variables
 dotenv.config();
@@ -47,6 +52,7 @@ app.get('/health', (req, res) => {
 // API Routes
 app.use('/api/auth', authLimiter, authRoutes); // Auth routes with stricter rate limiting
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/categories', categoryRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
@@ -58,7 +64,7 @@ app.use('*', (req, res) => {
 
 // Global error handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Global error handler:', err);
+  logger.error('Global error handler', err);
   
   res.status(err.status || 500).json({
     success: false,
@@ -73,30 +79,34 @@ const startServer = async () => {
   try {
     // Test database connection
     await pool.query('SELECT NOW()');
-    console.log('✅ Database connection successful');
+    logger.debug('Database connection successful');
 
     // Start server
     app.listen(PORT, () => {
-      console.log(`🚀 Finance App Backend running on port ${PORT}`);
-      console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🌐 Health check: http://localhost:${PORT}/health`);
-      console.log(`📊 API Base URL: http://localhost:${PORT}/api`);
+      logger.startup(`Finance App Backend running on port ${PORT}`);
+      logger.debug(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      logger.debug(`Health check: http://localhost:${PORT}/health`);
+      logger.debug(`API Base URL: http://localhost:${PORT}/api`);
+      
+      // Start token cleanup service
+      const tokenCleanup = TokenCleanupService.getInstance();
+      tokenCleanup.startPeriodicCleanup();
     });
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    logger.error('Failed to start server', error);
     process.exit(1);
   }
 };
 
 // Handle graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('🛑 SIGTERM received, shutting down gracefully');
+  logger.startup('SIGTERM received, shutting down gracefully');
   await pool.end();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
-  console.log('🛑 SIGINT received, shutting down gracefully');
+  logger.startup('SIGINT received, shutting down gracefully');
   await pool.end();
   process.exit(0);
 });

@@ -104,6 +104,12 @@ export class TransactionModel {
     return result.rowCount > 0;
   }
 
+  static async deleteAllByUserId(userId: number): Promise<number> {
+    const query = 'DELETE FROM transactions WHERE user_id = $1';
+    const result = await pool.query(query, [userId]);
+    return result.rowCount || 0;
+  }
+
   static async getStatsByUserId(userId: number, startDate?: string, endDate?: string) {
     let query = `
       SELECT 

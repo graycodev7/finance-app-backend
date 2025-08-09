@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { TransactionModel } from '../models/Transaction';
 import { AuthRequest } from '../middleware/auth';
 import { validationResult } from 'express-validator';
+import { logger } from '../utils/logger';
 
 export const createTransaction = async (req: AuthRequest, res: Response) => {
   try {
@@ -32,7 +33,7 @@ export const createTransaction = async (req: AuthRequest, res: Response) => {
       data: { transaction }
     });
   } catch (error) {
-    console.error('Create transaction error:', error);
+    logger.error('Create transaction error', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error'
@@ -56,7 +57,7 @@ export const getTransactions = async (req: AuthRequest, res: Response) => {
       data: { transactions }
     });
   } catch (error) {
-    console.error('Get transactions error:', error);
+    logger.error('Get transactions error', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error'
@@ -83,7 +84,7 @@ export const getTransaction = async (req: AuthRequest, res: Response) => {
       data: { transaction }
     });
   } catch (error) {
-    console.error('Get transaction error:', error);
+    logger.error('Get transaction error', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error'
@@ -126,7 +127,7 @@ export const updateTransaction = async (req: AuthRequest, res: Response) => {
       data: { transaction }
     });
   } catch (error) {
-    console.error('Update transaction error:', error);
+    logger.error('Update transaction error', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error'
@@ -153,7 +154,27 @@ export const deleteTransaction = async (req: AuthRequest, res: Response) => {
       message: 'Transaction deleted successfully'
     });
   } catch (error) {
-    console.error('Delete transaction error:', error);
+    logger.error('Delete transaction error', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+};
+
+export const deleteAllTransactions = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user!.id;
+
+    const deletedCount = await TransactionModel.deleteAllByUserId(userId);
+
+    res.json({
+      success: true,
+      message: `${deletedCount} transactions deleted successfully`,
+      data: { deletedCount }
+    });
+  } catch (error) {
+    logger.error('Delete all transactions error', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error'
@@ -198,7 +219,7 @@ export const getTransactionStats = async (req: AuthRequest, res: Response) => {
       data: { stats: formattedStats }
     });
   } catch (error) {
-    console.error('Get transaction stats error:', error);
+    logger.error('Get transaction stats error', error);
     res.status(500).json({
       success: false,
       message: 'Internal server error'

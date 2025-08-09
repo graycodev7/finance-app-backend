@@ -15,8 +15,9 @@ Backend API para la aplicación de finanzas personales. Construido con Node.js, 
 ## 📋 Requisitos Previos
 
 - Node.js 18+ 
-- PostgreSQL 12+
+- PostgreSQL 12+ (para desarrollo local)
 - npm o yarn
+- Cuenta Xata (para producción - gratis 15GB)
 
 ## 🛠️ Instalación
 
@@ -31,18 +32,29 @@ Backend API para la aplicación de finanzas personales. Construido con Node.js, 
    ```
 
 3. **Configurar variables de entorno**
-   ```bash
-   cp .env.example .env
-   ```
-   Edita el archivo `.env` con tus credenciales:
-   ```env
-   DB_PASSWORD=tu_password_de_postgresql
-   JWT_SECRET=tu_clave_secreta_jwt_muy_segura
-   ```
+    ```bash
+    cp .env.template .env
+    ```
+    Edita el archivo `.env` con tus credenciales:
+    ```env
+    # Para desarrollo local
+    DB_PASSWORD=tu_password_de_postgresql
+    JWT_SECRET=tu_clave_secreta_jwt_muy_segura
+    JWT_REFRESH_SECRET=tu_clave_refresh_jwt_muy_segura
+    
+    # Para producción (Xata PostgreSQL)
+    XATA_DATABASE_URL=postgresql://workspace:apikey@region.sql.xata.sh:5432/finance-app-backend:main?sslmode=require
+    ```
 
 4. **Configurar base de datos**
-   - Asegúrate de que PostgreSQL esté ejecutándose
-   - La base de datos `finance_app` debe existir con las tablas creadas
+    
+    **Para desarrollo local:**
+    - Asegúrate de que PostgreSQL esté ejecutándose
+    - La base de datos `finance_app` debe existir con las tablas creadas
+    
+    **Para producción:**
+    - Crear cuenta en [Xata.io](https://xata.io) (gratis)
+    - Seguir `DEPLOY_READY_CHECKLIST.md` para configuración completa
 
 ## 🚦 Scripts Disponibles
 
