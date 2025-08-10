@@ -25,6 +25,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust proxy for Vercel serverless (required for rate limiting)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(helmet()); // Security headers
 app.use(morgan('combined')); // Logging
