@@ -33,8 +33,15 @@ const getIpAddress = (req: Request): string => {
 
 export const register = async (req: Request, res: Response) => {
   try {
+    // Debug: Log incoming request data
+    logger.info('Registration attempt:', {
+      body: req.body,
+      headers: req.headers['content-type']
+    });
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      logger.error('Validation errors:', errors.array());
       return res.status(400).json({
         success: false,
         message: 'Validation errors',
