@@ -36,7 +36,7 @@ export interface UpdateUserPreferences {
 export class UserModel {
   static async create(userData: CreateUserData): Promise<User> {
     const { email, name, password, currency = 'PEN', language = 'es' } = userData;
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const query = `
       INSERT INTO users (email, name, password_hash, currency, language)
