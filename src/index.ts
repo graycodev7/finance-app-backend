@@ -111,4 +111,10 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-startServer();
+// Export app for Vercel serverless
+export default app;
+
+// Start server only in non-serverless environment
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  startServer();
+}
