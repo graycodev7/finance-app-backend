@@ -33,15 +33,9 @@ const getIpAddress = (req: Request): string => {
 
 export const register = async (req: Request, res: Response) => {
   try {
-    // Debug: Log incoming request data
-    logger.info('Registration attempt:', {
-      body: req.body,
-      headers: req.headers['content-type']
-    });
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      logger.error('Validation errors:', errors.array());
+      logger.error('Registration validation failed');
       return res.status(400).json({
         success: false,
         message: 'Validation errors',
@@ -50,31 +44,23 @@ export const register = async (req: Request, res: Response) => {
     }
 
     const { email, name, password, currency, language } = req.body;
-    logger.info('Extracted fields:', { email, name, currency, language });
 
     // Check if user already exists
-    logger.info('Checking if user exists...');
     const existingUser = await UserModel.findByEmail(email);
     if (existingUser) {
-      logger.info('User already exists:', email);
       return res.status(409).json({
         success: false,
         message: 'User with this email already exists'
       });
     }
-    logger.info('User does not exist, proceeding with creation...');
 
     // Create new user
-    logger.info('Creating new user...');
     const user = await UserModel.create({ email, name, password, currency, language });
-    logger.info('User created successfully:', { id: user.id, email: user.email });
     
     // Generate token pair with refresh token
-    logger.info('Generating tokens...');
     const deviceInfo = getDeviceInfo(req);
     const ipAddress = getIpAddress(req);
     const tokens = await JWTUtils.generateTokenPair(user.id, user.email, deviceInfo, ipAddress);
-    logger.info('Tokens generated successfully');
 
     res.status(201).json({
       success: true,
